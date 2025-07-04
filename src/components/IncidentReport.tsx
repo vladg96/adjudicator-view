@@ -1,9 +1,10 @@
 
 import { AlertTriangle, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Dispute } from "@/services/disputeService";
 
 interface IncidentReportProps {
-  case_: any;
+  case_: Dispute;
 }
 
 const IncidentReport = ({ case_ }: IncidentReportProps) => {
@@ -32,10 +33,10 @@ const IncidentReport = ({ case_ }: IncidentReportProps) => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {case_.evidence.map((item: string, index: number) => (
-                <div key={index} className="flex items-center gap-3 p-3 bg-slate-900/50 rounded border border-slate-700 hover:border-teal-500/50 transition-colors">
+              {case_.evidence.map((item, index) => (
+                <div key={item.id || index} className="flex items-center gap-3 p-3 bg-slate-900/50 rounded border border-slate-700 hover:border-teal-500/50 transition-colors">
                   <FileText className="h-4 w-4 text-teal-400" />
-                  <span className="text-sm text-slate-300">{item}</span>
+                  <span className="text-sm text-slate-300">{item.file_name}</span>
                 </div>
               ))}
             </div>

@@ -1,6 +1,7 @@
 
 import { Clock, CheckCircle, AlertTriangle, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import type { Dispute } from "@/services/disputeService";
 
 interface WorkflowStep {
   id: number;
@@ -10,7 +11,7 @@ interface WorkflowStep {
 }
 
 interface CaseTimelineSidebarProps {
-  case_: any;
+  case_: Dispute;
 }
 
 const CaseTimelineSidebar = ({ case_ }: CaseTimelineSidebarProps) => {
@@ -33,11 +34,19 @@ const CaseTimelineSidebar = ({ case_ }: CaseTimelineSidebarProps) => {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  // Calculate workflow steps based on actual data
+  const submittedDate = formatDate(case_.submitted_date);
+  const createdDate = formatDate(case_.created_at);
+  
   const workflowSteps: WorkflowStep[] = [
-    { id: 1, title: "Case Submitted", status: "completed", date: case_.submittedDate },
-    { id: 2, title: "Initial Review", status: case_.status === "pending" ? "current" : "completed", date: "2024-01-16" },
-    { id: 3, title: "Investigation", status: case_.status === "in-review" ? "current" : case_.status === "resolved" || case_.status === "escalated" ? "completed" : "pending", date: case_.status === "in-review" ? "In Progress" : "2024-01-18" },
-    { id: 4, title: "Resolution", status: case_.status === "resolved" ? "completed" : case_.status === "escalated" ? "escalated" : "pending", date: case_.status === "resolved" ? "2024-01-20" : "Pending" }
+    { id: 1, title: "Case Submitted", status: "completed", date: submittedDate },
+    { id: 2, title: "Initial Review", status: case_.status === "pending" ? "current" : "completed", date: createdDate },
+    { id: 3, title: "Investigation", status: case_.status === "in-review" ? "current" : case_.status === "resolved" || case_.status === "escalated" ? "completed" : "pending", date: case_.status === "in-review" ? "In Progress" : case_.status === "resolved" || case_.status === "escalated" ? formatDate(case_.updated_at) : "Pending" },
+    { id: 4, title: "Resolution", status: case_.status === "resolved" ? "completed" : case_.status === "escalated" ? "escalated" : "pending", date: case_.status === "resolved" ? formatDate(case_.updated_at) : "Pending" }
   ];
 
   return (
@@ -102,7 +111,7 @@ const CaseTimelineSidebar = ({ case_ }: CaseTimelineSidebarProps) => {
           </div>
           <div className="flex justify-between">
             <span className="text-slate-400">Amount:</span>
-            <span className="text-slate-200 font-semibold">${case_.amount}</span>
+            <span className="text-slate-200 font-semibold">${Number(case_.amount).toFixed(2)}</span>
           </div>
         </div>
       </div>

@@ -6,8 +6,14 @@ import CaseTimelineSidebar from "./CaseTimelineSidebar";
 import PassengerInformation from "./PassengerInformation";
 import IncidentReport from "./IncidentReport";
 import ResponseSection from "./ResponseSection";
+import type { Dispute } from "@/services/disputeService";
 
-const CaseDetailModal = ({ case_, onClose }) => {
+interface CaseDetailModalProps {
+  case_: Dispute;
+  onClose: () => void;
+}
+
+const CaseDetailModal = ({ case_, onClose }: CaseDetailModalProps) => {
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden bg-slate-900 border-slate-700 text-slate-100">
@@ -18,7 +24,7 @@ const CaseDetailModal = ({ case_, onClose }) => {
               <span className="text-teal-300 font-medium">TAKAMOL Aviation Disputes</span>
             </div>
             <span className="text-slate-300">|</span>
-            <span className="text-slate-200">Case {case_.caseId}</span>
+            <span className="text-slate-200">Case {case_.case_id}</span>
           </DialogTitle>
         </DialogHeader>
 

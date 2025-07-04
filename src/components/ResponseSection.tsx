@@ -1,28 +1,55 @@
 
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Send, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { updateDisputeReply, type Dispute } from "@/services/disputeService";
 
 interface ResponseSectionProps {
-  case_: any;
+  case_: Dispute;
   onClose: () => void;
 }
 
 const ResponseSection = ({ case_, onClose }: ResponseSectionProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [reply, setReply] = useState(case_.currentReply || "");
+  const [reply, setReply] = useState(case_.current_reply || "");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const updateMutation = useMutation({
+    mutationFn: (newReply: string) => updateDisputeReply(case_.id, newReply),
+    onSuccess: () => {
+      toast({
+        title: "Reply sent successfully",
+        description: `Reply has been sent to ${case_.customer_name}`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['disputes'] });
+      setIsEditing(false);
+      onClose();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error sending reply",
+        description: "Failed to save the reply. Please try again.",
+        variant: "destructive",
+      });
+      console.error('Failed to update reply:', error);
+    },
+  });
 
   const handleSendReply = () => {
-    toast({
-      title: "Reply sent successfully",
-      description: `Reply has been sent to ${case_.customerName}`,
-    });
-    setIsEditing(false);
-    onClose();
+    if (!reply.trim()) {
+      toast({
+        title: "Empty reply",
+        description: "Please write a reply before sending.",
+        variant: "destructive",
+      });
+      return;
+    }
+    updateMutation.mutate(reply);
   };
 
   return (
@@ -38,6 +65,7 @@ const ResponseSection = ({ case_, onClose }: ResponseSectionProps) => {
             size="sm"
             onClick={() => setIsEditing(!isEditing)}
             className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-slate-200"
+            disabled={updateMutation.isPending}
           >
             {isEditing ? "Cancel" : "Draft Response"}
           </Button>
@@ -57,15 +85,17 @@ const ResponseSection = ({ case_, onClose }: ResponseSectionProps) => {
                 variant="outline"
                 onClick={() => setIsEditing(false)}
                 className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-slate-200"
+                disabled={updateMutation.isPending}
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSendReply}
                 className="bg-teal-600 hover:bg-teal-700 text-white"
+                disabled={updateMutation.isPending}
               >
                 <Send className="h-4 w-4 mr-2" />
-                Send Official Response
+                {updateMutation.isPending ? "Sending..." : "Send Official Response"}
               </Button>
             </div>
           </div>
@@ -80,9 +110,10 @@ const ResponseSection = ({ case_, onClose }: ResponseSectionProps) => {
               <Button
                 onClick={handleSendReply}
                 className="bg-teal-600 hover:bg-teal-700 text-white"
+                disabled={updateMutation.isPending}
               >
                 <Send className="h-4 w-4 mr-2" />
-                Send Official Response
+                {updateMutation.isPending ? "Sending..." : "Send Official Response"}
               </Button>
             )}
           </div>

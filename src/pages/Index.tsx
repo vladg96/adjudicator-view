@@ -1,26 +1,32 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search, Eye, MessageSquare, Filter, Plane } from "lucide-react";
 import CaseDetailModal from "@/components/CaseDetailModal";
-import { mockCases } from "@/data/mockData";
+import { fetchDisputes, type Dispute } from "@/services/disputeService";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCase, setSelectedCase] = useState(null);
+  const [selectedCase, setSelectedCase] = useState<Dispute | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const filteredCases = mockCases.filter((caseItem) => {
-    const matchesSearch = caseItem.caseId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         caseItem.customerName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || caseItem.status === statusFilter;
+  const { data: disputes = [], isLoading, error } = useQuery({
+    queryKey: ['disputes'],
+    queryFn: fetchDisputes,
+  });
+
+  const filteredCases = disputes.filter((dispute) => {
+    const matchesSearch = dispute.case_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         dispute.customer_name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || dispute.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "pending": return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
       case "in-review": return "bg-blue-500/20 text-blue-300 border-blue-500/30";
@@ -30,7 +36,7 @@ const Index = () => {
     }
   };
 
-  const getPriorityColor = (priority) => {
+  const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high": return "bg-red-500";
       case "medium": return "bg-yellow-500";
@@ -38,6 +44,32 @@ const Index = () => {
       default: return "bg-slate-500";
     }
   };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-400 mx-auto mb-4"></div>
+          <p className="text-slate-300">Loading disputes...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-400 mb-4">Error loading disputes</p>
+          <p className="text-slate-400">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
@@ -96,20 +128,20 @@ const Index = () => {
 
         {/* Cases Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredCases.map((caseItem) => (
-            <Card key={caseItem.caseId} className="hover:shadow-xl transition-all duration-200 border-slate-700 shadow-lg bg-slate-800/50 backdrop-blur-sm hover:bg-slate-800/70">
+          {filteredCases.map((dispute) => (
+            <Card key={dispute.id} className="hover:shadow-xl transition-all duration-200 border-slate-700 shadow-lg bg-slate-800/50 backdrop-blur-sm hover:bg-slate-800/70">
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
                   <div>
                     <CardTitle className="text-lg font-semibold text-slate-100">
-                      {caseItem.caseId}
+                      {dispute.case_id}
                     </CardTitle>
-                    <p className="text-sm text-slate-400 mt-1">{caseItem.customerName}</p>
+                    <p className="text-sm text-slate-400 mt-1">{dispute.customer_name}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${getPriorityColor(caseItem.priority)}`}></div>
-                    <Badge className={`text-xs ${getStatusColor(caseItem.status)}`}>
-                      {caseItem.status}
+                    <div className={`w-2 h-2 rounded-full ${getPriorityColor(dispute.priority)}`}></div>
+                    <Badge className={`text-xs ${getStatusColor(dispute.status)}`}>
+                      {dispute.status}
                     </Badge>
                   </div>
                 </div>
@@ -118,19 +150,19 @@ const Index = () => {
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm font-medium text-slate-300">Dispute Type</p>
-                    <p className="text-sm text-slate-400">{caseItem.disputeType}</p>
+                    <p className="text-sm text-slate-400">{dispute.dispute_type}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-300">Amount</p>
-                    <p className="text-sm text-slate-100 font-semibold">${caseItem.amount}</p>
+                    <p className="text-sm text-slate-100 font-semibold">${Number(dispute.amount).toFixed(2)}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-300">Submitted</p>
-                    <p className="text-sm text-slate-400">{caseItem.submittedDate}</p>
+                    <p className="text-sm text-slate-400">{formatDate(dispute.submitted_date)}</p>
                   </div>
                   <div className="pt-2 border-t border-slate-700">
                     <Button
-                      onClick={() => setSelectedCase(caseItem)}
+                      onClick={() => setSelectedCase(dispute)}
                       className="w-full bg-teal-600 hover:bg-teal-700 text-white border-0"
                       size="sm"
                     >
