@@ -13,10 +13,10 @@ const Index = () => {
   const [selectedCase, setSelectedCase] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const filteredCases = mockCases.filter(case => {
-    const matchesSearch = case.caseId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         case.customerName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || case.status === statusFilter;
+  const filteredCases = mockCases.filter((caseItem) => {
+    const matchesSearch = caseItem.caseId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         caseItem.customerName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || caseItem.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -90,20 +90,20 @@ const Index = () => {
 
         {/* Cases Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredCases.map((case_) => (
-            <Card key={case_.caseId} className="hover:shadow-lg transition-shadow duration-200 border-0 shadow-md bg-white">
+          {filteredCases.map((caseItem) => (
+            <Card key={caseItem.caseId} className="hover:shadow-lg transition-shadow duration-200 border-0 shadow-md bg-white">
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
                   <div>
                     <CardTitle className="text-lg font-semibold text-gray-900">
-                      {case_.caseId}
+                      {caseItem.caseId}
                     </CardTitle>
-                    <p className="text-sm text-gray-600 mt-1">{case_.customerName}</p>
+                    <p className="text-sm text-gray-600 mt-1">{caseItem.customerName}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${getPriorityColor(case_.priority)}`}></div>
-                    <Badge className={`text-xs ${getStatusColor(case_.status)}`}>
-                      {case_.status}
+                    <div className={`w-2 h-2 rounded-full ${getPriorityColor(caseItem.priority)}`}></div>
+                    <Badge className={`text-xs ${getStatusColor(caseItem.status)}`}>
+                      {caseItem.status}
                     </Badge>
                   </div>
                 </div>
@@ -112,19 +112,19 @@ const Index = () => {
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm font-medium text-gray-700">Dispute Type</p>
-                    <p className="text-sm text-gray-600">{case_.disputeType}</p>
+                    <p className="text-sm text-gray-600">{caseItem.disputeType}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-700">Amount</p>
-                    <p className="text-sm text-gray-900 font-semibold">${case_.amount}</p>
+                    <p className="text-sm text-gray-900 font-semibold">${caseItem.amount}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-700">Submitted</p>
-                    <p className="text-sm text-gray-600">{case_.submittedDate}</p>
+                    <p className="text-sm text-gray-600">{caseItem.submittedDate}</p>
                   </div>
                   <div className="pt-2 border-t">
                     <Button
-                      onClick={() => setSelectedCase(case_)}
+                      onClick={() => setSelectedCase(caseItem)}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                       size="sm"
                     >
