@@ -123,15 +123,19 @@ const PassengerInformation = ({ case_, onUpdate }: PassengerInformationProps) =>
                   </Button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <p className="text-lg font-semibold text-slate-200">${Number(case_.amount).toFixed(2)}</p>
                   <Button
                     size="sm"
-                    variant="ghost"
-                    onClick={() => setIsEditingAmount(true)}
-                    className="h-6 w-6 p-0 hover:bg-slate-700"
+                    variant="outline"
+                    onClick={() => {
+                      console.log('Edit button clicked');
+                      setIsEditingAmount(true);
+                    }}
+                    className="h-8 px-2 border-slate-600 hover:bg-slate-700 hover:border-teal-500 transition-colors"
                   >
-                    <Edit2 className="h-3 w-3 text-slate-400" />
+                    <Edit2 className="h-4 w-4 text-slate-400 mr-1" />
+                    <span className="text-xs text-slate-400">Edit</span>
                   </Button>
                 </div>
               )}
