@@ -11,9 +11,10 @@ import { updateDisputeReply, type Dispute } from "@/services/disputeService";
 interface ResponseSectionProps {
   case_: Dispute;
   onClose: () => void;
+  onUpdate?: (updatedCase: Partial<Dispute>) => void;
 }
 
-const ResponseSection = ({ case_, onClose }: ResponseSectionProps) => {
+const ResponseSection = ({ case_, onClose, onUpdate }: ResponseSectionProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [reply, setReply] = useState(case_.current_reply || "");
   const { toast } = useToast();
@@ -26,6 +27,8 @@ const ResponseSection = ({ case_, onClose }: ResponseSectionProps) => {
         title: "Reply sent successfully",
         description: `Reply has been sent to ${case_.customer_name}`,
       });
+      // Update the case immediately in the parent component
+      onUpdate?.({ current_reply: reply });
       queryClient.invalidateQueries({ queryKey: ['disputes'] });
       setIsEditing(false);
       onClose();

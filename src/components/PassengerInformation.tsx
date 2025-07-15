@@ -10,7 +10,7 @@ import type { Dispute } from "@/services/disputeService";
 
 interface PassengerInformationProps {
   case_: Dispute;
-  onUpdate?: () => void;
+  onUpdate?: (updatedCase: Partial<Dispute>) => void;
 }
 
 const PassengerInformation = ({ case_, onUpdate }: PassengerInformationProps) => {
@@ -37,7 +37,8 @@ const PassengerInformation = ({ case_, onUpdate }: PassengerInformationProps) =>
     try {
       await updateDisputeAmount(case_.id, Number(amountValue));
       setIsEditingAmount(false);
-      onUpdate?.();
+      // Pass the updated amount to the parent component
+      onUpdate?.({ amount: Number(amountValue) });
       toast({
         title: "Amount updated",
         description: "The compensation amount has been updated successfully",

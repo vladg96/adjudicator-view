@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,11 +13,27 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCase, setSelectedCase] = useState<Dispute | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
+  const queryClient = useQueryClient();
 
   const { data: disputes = [], isLoading, error, refetch } = useQuery({
     queryKey: ['disputes'],
     queryFn: fetchDisputes,
   });
+
+  const handleCaseUpdate = (updatedCase: Partial<Dispute>) => {
+    // Update the selected case immediately
+    if (selectedCase) {
+      setSelectedCase({ ...selectedCase, ...updatedCase });
+    }
+    
+    // Update the React Query cache immediately
+    queryClient.setQueryData(['disputes'], (oldData: Dispute[] | undefined) => {
+      if (!oldData) return oldData;
+      return oldData.map(dispute => 
+        dispute.id === selectedCase?.id ? { ...dispute, ...updatedCase } : dispute
+      );
+    });
+  };
 
   const filteredCases = disputes.filter((dispute) => {
     const matchesSearch = dispute.case_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -190,7 +206,7 @@ const Index = () => {
         <CaseDetailModal
           case_={selectedCase}
           onClose={() => setSelectedCase(null)}
-          onUpdate={() => refetch()}
+          onUpdate={handleCaseUpdate}
         />
       )}
     </div>

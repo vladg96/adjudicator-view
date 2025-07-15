@@ -11,7 +11,7 @@ import type { Dispute } from "@/services/disputeService";
 interface CaseDetailModalProps {
   case_: Dispute;
   onClose: () => void;
-  onUpdate?: () => void;
+  onUpdate?: (updatedCase: Partial<Dispute>) => void;
 }
 
 const CaseDetailModal = ({ case_, onClose, onUpdate }: CaseDetailModalProps) => {
@@ -44,7 +44,7 @@ const CaseDetailModal = ({ case_, onClose, onUpdate }: CaseDetailModalProps) => 
             <Separator className="bg-slate-700" />
 
             {/* Reply Section */}
-            <ResponseSection case_={case_} onClose={onClose} />
+            <ResponseSection case_={case_} onClose={onClose} onUpdate={onUpdate} />
           </div>
         </div>
       </DialogContent>
