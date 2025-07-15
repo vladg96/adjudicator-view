@@ -11,9 +11,10 @@ import type { Dispute } from "@/services/disputeService";
 interface CaseDetailModalProps {
   case_: Dispute;
   onClose: () => void;
+  onUpdate?: () => void;
 }
 
-const CaseDetailModal = ({ case_, onClose }: CaseDetailModalProps) => {
+const CaseDetailModal = ({ case_, onClose, onUpdate }: CaseDetailModalProps) => {
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden bg-slate-900 border-slate-700 text-slate-100">
@@ -35,7 +36,7 @@ const CaseDetailModal = ({ case_, onClose }: CaseDetailModalProps) => {
           {/* Main Content */}
           <div className="flex-1 space-y-6">
             {/* Case Overview */}
-            <PassengerInformation case_={case_} />
+            <PassengerInformation case_={case_} onUpdate={onUpdate} />
 
             {/* Incident Report and Evidence */}
             <IncidentReport case_={case_} />

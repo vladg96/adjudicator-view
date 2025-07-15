@@ -1,15 +1,62 @@
 
-import { User, DollarSign, Calendar } from "lucide-react";
+import { User, DollarSign, Calendar, Edit2, Check, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { updateDisputeAmount } from "@/services/disputeService";
+import { useToast } from "@/hooks/use-toast";
 import type { Dispute } from "@/services/disputeService";
 
 interface PassengerInformationProps {
   case_: Dispute;
+  onUpdate?: () => void;
 }
 
-const PassengerInformation = ({ case_ }: PassengerInformationProps) => {
+const PassengerInformation = ({ case_, onUpdate }: PassengerInformationProps) => {
+  const [isEditingAmount, setIsEditingAmount] = useState(false);
+  const [amountValue, setAmountValue] = useState(case_.amount.toString());
+  const [isUpdating, setIsUpdating] = useState(false);
+  const { toast } = useToast();
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
+  };
+
+  const handleAmountUpdate = async () => {
+    if (!amountValue || isNaN(Number(amountValue))) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      await updateDisputeAmount(case_.id, Number(amountValue));
+      setIsEditingAmount(false);
+      onUpdate?.();
+      toast({
+        title: "Amount updated",
+        description: "The compensation amount has been updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating amount:', error);
+      toast({
+        title: "Update failed",
+        description: "Failed to update the compensation amount",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setAmountValue(case_.amount.toString());
+    setIsEditingAmount(false);
   };
 
   return (
@@ -44,7 +91,50 @@ const PassengerInformation = ({ case_ }: PassengerInformationProps) => {
                 <DollarSign className="h-4 w-4 text-teal-400" />
                 Compensation Claim
               </p>
-              <p className="text-lg font-semibold text-slate-200">${Number(case_.amount).toFixed(2)}</p>
+              {isEditingAmount ? (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center">
+                    <span className="text-lg font-semibold text-slate-200 mr-1">$</span>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={amountValue}
+                      onChange={(e) => setAmountValue(e.target.value)}
+                      className="w-24 h-8 bg-slate-700 border-slate-600 text-slate-200"
+                      disabled={isUpdating}
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={handleAmountUpdate}
+                    disabled={isUpdating}
+                    className="h-8 w-8 p-0 bg-teal-600 hover:bg-teal-700"
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                    disabled={isUpdating}
+                    className="h-8 w-8 p-0 border-slate-600 hover:bg-slate-700"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-semibold text-slate-200">${Number(case_.amount).toFixed(2)}</p>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setIsEditingAmount(true)}
+                    className="h-6 w-6 p-0 hover:bg-slate-700"
+                  >
+                    <Edit2 className="h-3 w-3 text-slate-400" />
+                  </Button>
+                </div>
+              )}
             </div>
             <div>
               <p className="text-sm font-medium text-slate-400 flex items-center gap-1">

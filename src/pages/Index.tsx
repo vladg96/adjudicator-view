@@ -14,7 +14,7 @@ const Index = () => {
   const [selectedCase, setSelectedCase] = useState<Dispute | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const { data: disputes = [], isLoading, error } = useQuery({
+  const { data: disputes = [], isLoading, error, refetch } = useQuery({
     queryKey: ['disputes'],
     queryFn: fetchDisputes,
   });
@@ -190,6 +190,7 @@ const Index = () => {
         <CaseDetailModal
           case_={selectedCase}
           onClose={() => setSelectedCase(null)}
+          onUpdate={() => refetch()}
         />
       )}
     </div>

@@ -61,3 +61,22 @@ export async function updateDisputeReply(id: string, reply: string) {
 
   return data;
 }
+
+export async function updateDisputeAmount(id: string, amount: number) {
+  const { data, error } = await supabase
+    .from('disputes')
+    .update({ 
+      amount: amount,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating dispute amount:', error);
+    throw error;
+  }
+
+  return data;
+}
