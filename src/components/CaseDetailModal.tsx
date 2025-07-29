@@ -4,6 +4,8 @@ import { Separator } from "@/components/ui/separator";
 import { Plane } from "lucide-react";
 import CaseTimelineSidebar from "./CaseTimelineSidebar";
 import PassengerInformation from "./PassengerInformation";
+import ApplicableRegulations from "./ApplicableRegulations";
+import ClaimValuation from "./ClaimValuation";
 import IncidentReport from "./IncidentReport";
 import ResponseSection from "./ResponseSection";
 import type { Dispute } from "@/services/disputeService";
@@ -37,6 +39,12 @@ const CaseDetailModal = ({ case_, onClose, onUpdate }: CaseDetailModalProps) => 
           <div className="flex-1 space-y-6">
             {/* Case Overview */}
             <PassengerInformation case_={case_} onUpdate={onUpdate} />
+
+            {/* Applicable Regulations */}
+            <ApplicableRegulations case_={case_} />
+
+            {/* Claim Valuation */}
+            <ClaimValuation case_={case_} />
 
             {/* Incident Report and Evidence */}
             <IncidentReport case_={case_} />

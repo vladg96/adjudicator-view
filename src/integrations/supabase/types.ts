@@ -17,7 +17,9 @@ export type Database = {
       disputes: {
         Row: {
           amount: number
+          applicable_regulations: string
           case_id: string
+          claim_valuation: string
           complaint: string
           created_at: string
           current_reply: string | null
@@ -33,7 +35,9 @@ export type Database = {
         }
         Insert: {
           amount: number
+          applicable_regulations: string
           case_id: string
+          claim_valuation: string
           complaint: string
           created_at?: string
           current_reply?: string | null
@@ -49,7 +53,9 @@ export type Database = {
         }
         Update: {
           amount?: number
+          applicable_regulations?: string
           case_id?: string
+          claim_valuation?: string
           complaint?: string
           created_at?: string
           current_reply?: string | null
